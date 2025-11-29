@@ -1,0 +1,9 @@
+ipykernel
+numpy==1.26
+pandas>=1.3.0
+scikit-learn>=1.0.0
+matplotlib>=3.4.0
+requests
+torch-timeseries
+statsmodels
+torch_geometric
