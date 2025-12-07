@@ -59,7 +59,7 @@ Beyond reproducing the original configuration of GDN, we perform several additio
   - Train GDN on data that contain anomalies (`anom_in_train`) to study robustness to contaminated training sets
 
 - **Effect of the context window size**
-  - Vary the sliding-window length $ w $ (e.g. $ w \in \{5, 10, 20, 50, 75, 100, 150, 200\} $)  
+  - Vary the sliding-window length $w$ (e.g. $w \in \{5, 10, 20, 50, 75, 100, 150, 200\}$)  
   - Study its impact on AUC and the difference between SMAP and SMD
 
 - **Point-wise vs sequence-wise evaluation**
