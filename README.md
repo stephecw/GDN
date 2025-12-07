@@ -94,14 +94,14 @@ All other components are **implemented by us**.
 Open the main notebook of this repository (for example:
 
 ```bash
-jupyter notebook mini_project_gdn.ipynb
+jupyter notebook GDN.ipynb
 ```
 
 ---
 
 ### References
-	•	Ailin Deng & Bryan Hooi — Graph Neural Network-Based Anomaly Detection in Multivariate Time Series (GDN), KDD 2021
-	•	Franco Scarselli et al. — The Graph Neural Network Model, IEEE TNN, 2009
-	•	NASA SMAP Anomaly Benchmark
-	•	Server Machine Dataset (SMD) benchmark
+- Ailin Deng & Bryan Hooi — Graph Neural Network-Based Anomaly Detection in Multivariate Time Series (GDN), KDD 2021
+- Franco Scarselli et al. — The Graph Neural Network Model, IEEE TNN, 2009
+- NASA SMAP Anomaly Benchmark
+- Server Machine Dataset (SMD) benchmark
 
