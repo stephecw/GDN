@@ -1,107 +1,74 @@
 # Graph Deviation Network (GDN) — Anomaly Detection on SMAP & SMD
 
-This repository contains our implementation and experiments for the **MVA 2025/2026 — Machine Learning for Time Series** mini-project.  
-We study the **Graph Deviation Network (GDN)** method by Deng & Hooi (KDD 2021) and apply it to two multivariate time-series datasets: **NASA SMAP** and **Server Machine Dataset (SMD)**.  
-GDN learns a graph of dependencies between sensors and detects anomalies as **deviations from the learned graph-based forecasting behaviour**.
+This repository contains our implementation and experiments for the  
+**MVA 2025/2026 — Machine Learning for Time Series** mini-project.
+
+We study the **Graph Deviation Network (GDN)** method proposed by Deng & Hooi (KDD 2021) for anomaly detection in multivariate time series, and apply it to **two datasets not considered in the original paper**: **NASA SMAP** and **Server Machine Dataset (SMD)**.
+
+GDN learns a graph of dependencies between sensors and detects anomalies as  
+**deviations from the learned graph-based forecasting behaviour**.
+
+📄 **Full report**: [Mini_Project_AST.pdf](./Mini_Project_AST.pdf)
+
 
 ---
 
 ## Datasets
+- **SMAP**: 25 sensors (1 continuous, 24 binary), expert-labelled anomaly segments  
+- **SMD**: 38 continuous sensors, single long multivariate series with anomaly segments  
 
-We use the implementations provided in `torch_timeseries`:
-
-- **SMAP** (NASA telemetry anomaly benchmark)  
-  - 25 sensors (1 continuous, 24 binary)  
-  - Expert-labelled anomalous segments  
-  - Training split assumed anomaly-free
-
-- **SMD** (Server Machine Dataset)  
-  - 38 continuous sensors  
-  - Single long multivariate series with labelled anomalous segments  
-  - Training split assumed anomaly-free
-
-Both datasets are automatically downloaded by the loading utilities; no manual download is required.
+Both datasets are loaded via `torch_timeseries`.  
+Based on signal analysis, **no detrending or denoising** is applied.
 
 ---
 
-## Model
+## Method
+We reuse the original **GDN architecture** and adapt all training, preprocessing, and evaluation code.
 
-We reuse the original **GDN architecture** and adapt it to our custom data loaders and evaluation code.  
-GDN learns:
+GDN:
+- Learns **sensor embeddings**
+- Builds a **Top-k similarity graph**
+- Predicts the next time step using **graph attention**
+- Detects anomalies via **normalized forecasting errors**
 
-- **Sensor embeddings** in a latent space
-- A **Top-k similarity graph** between sensors (cosine similarity on embeddings)
-- A **graph attention–based forecasting network** that predicts the next time step from a sliding window of past observations
-- An **anomaly score** based on normalized prediction errors and max-pooling over sensors
-
-Training is done with **MSE loss** on the one-step-ahead forecast, following the original paper.
+Training is done with **MSE loss**, as in the original paper.
 
 ---
 
 ## Experiments
+- **Baselines**: VAR(100), AR(100)
+- **Original GDN configuration** (`paper_config`)
+- **Anomalies in training** (`anom_in_train`)
+- **Context window size study** (SMAP vs SMD)
+- **Point-wise and sequence-wise evaluation**
 
-Beyond reproducing the original configuration of GDN, we perform several additional experiments on both datasets:
-
-### Common experiments (SMAP & SMD)
-
-- **Data analysis and preprocessing**
-  - Basic statistics, autocorrelation, spectra
-  - Decision not to detrend or denoise, based on signal inspection
-
-- **Linear baselines**
-  - **VAR(100)**: multivariate autoregressive model on all sensors  
-  - **AR(100)**: univariate autoregressive model on a single sensor
-
-- **Reproduction of the original GDN configuration**
-  - Same hyper-parameters as in the paper (`paper_config`)
-
-- **Anomalies in the training set**
-  - Train GDN on data that contain anomalies (`anom_in_train`) to study robustness to contaminated training sets
-
-- **Effect of the context window size**
-  - Vary the sliding-window length $w$ (e.g. $w$ $\in$ {5, 10, 20, 50, 75, 100, 150, 200})  
-  - Study its impact on AUC and the difference between SMAP and SMD
-
-- **Point-wise vs sequence-wise evaluation**
-  - Point-wise: metrics computed per time step  
-  - Sequence-wise: merge each anomalous segment into a single point (keep the maximum score on the segment) before computing metrics
-
-### SMAP-specific experiments
-
-- **Mixed loss / score for continuous and binary sensors (`mix_cont/bin`)**
-  - Continuous channel: MSE loss and absolute error
-  - Binary channels: BCE loss on logits and sigmoid-transformed errors
-  - Adapted anomaly scoring to account for heterogeneous sensor types
-
-### Overall findings
-
-- On **SMAP**, all GDN variants perform poorly in strict point-wise AUC and remain below the linear baselines; the dataset’s mostly binary nature makes forecasting-based detection difficult.
-- On **SMD**, all models achieve higher AUC, and **VAR(100)** slightly outperforms GDN and AR, suggesting that simple linear models with full multivariate context can be very competitive.
-- Injecting anomalies into the training data strongly degrades performance, confirming the importance of a clean training set.
-- The context window has opposite effects on SMAP and SMD: small windows are best on SMAP, whereas larger windows improve performance on SMD.
+**SMAP only**:
+- Mixed loss and score for continuous vs binary sensors (`mix_cont/bin`)
 
 ---
 
-## Code reuse
-
-In this project, we **reuse the original implementation of the GDN model architecture** and **adapt the training and testing functions**.  
-All other components are **implemented by us**.
+## Main Results
+- **SMAP**: GDN performs poorly due to the binary nature of the data; AR(100) performs best.
+- **SMD**: Higher AUC for all models; VAR(100) slightly outperforms GDN.
+- Training with anomalies strongly degrades performance.
+- Window size has opposite effects: small windows work best on SMAP, large windows on SMD.
 
 ---
 
-## How to Run
+## Code Reuse
+We reuse the **GDN model architecture**; all other components are implemented by us.
 
-Open the main notebook of this repository (for example:
+---
+
+## Run
 
 ```bash
 jupyter notebook GDN.ipynb
 ```
-
 ---
 
-### References
-- Ailin Deng & Bryan Hooi — Graph Neural Network-Based Anomaly Detection in Multivariate Time Series (GDN), KDD 2021
-- Franco Scarselli et al. — The Graph Neural Network Model, IEEE TNN, 2009
-- NASA SMAP Anomaly Benchmark
-- Server Machine Dataset (SMD) benchmark
-
+## References
+	•	Ailin Deng & Bryan Hooi — Graph Neural Network-Based Anomaly Detection in Multivariate Time Series (GDN), KDD 2021
+	•	Franco Scarselli et al. — The Graph Neural Network Model, IEEE TNN, 2009
+	•	NASA SMAP Anomaly Benchmark
+	•	Server Machine Dataset (SMD) benchmark
